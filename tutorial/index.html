@@ -1,0 +1,233 @@
+<html>
+<head>
+    <title>Blogimistic - REST API for blogging - Activator Template</title>
+</head>
+<body>
+
+<div>
+<h2>Introduction</h2>
+<p>
+    Blogimistic is a complete application implemented in Scala, Spray and Slick 3.0.
+</p>
+<p>
+    It contains a project structure and useful building blocks for a restful APIs consumed by single-page
+    web applications (eg. AngularJS) and mobile applications (eg. Cordova, PhoneGap)
+</p>
+<p>
+    You can use it as a starting point for your own application or as a reference source for real world examples of:
+    <ul>
+        <li>Slick 3.0 queries, transactions, mappers and tests</li>
+        <li>Spray routes, directives, authentication, authorization, exception handling and tests</li>
+    </ul>
+</p>
+<p>
+    This tutorial will dissect and discuss several useful features you may wish to incorporate into your own APIs:
+    <ul>
+        <li>Entity management</li>
+        <li>Optimistic locking</li>
+        <li>CORS</li>
+        <li>Authentication</li>
+        <li>Authorization</li>
+    </ul>
+</p>
+</div>
+
+
+<div>
+<h2>About Blogimistic</h2>
+<p>
+    The requirements for Blogimistic are:
+    <ul>
+        <li>Users sign in via Facebook</li>
+        <li>Users can create their own blog, then under each blog, create many blog posts</li>
+        <li>The creator of a blog becomes the administrator (owner) of the blog</li>
+        <li>Each blog can have several contributors, so we need optimistic locking in case several users try to edit the blog at the same time</li>
+        <li>We want to build and deploy our client(s) separate to the server, so CORS support is required.</li>
+    </ul>
+</p>
+</div>
+
+
+<div>
+<h2>Entity management</h2>
+<p>
+    It is useful to have some sort of ORM-like framework on top of Slick to handle the most common CRUD functionality so we don't have to repeat it over and over.
+    This will also play an important role in our end-to-end optimistic concurrency control framework (described later in the tutorial).
+</p>
+<p>
+    Our entity abstraction is defined in <a class="shortcut" href="#code/src/main/scala/model/Entity.scala">Entity.scala</a>.
+    <ul>
+        <li>An entity is implemented as a case class and consists of an ID, version, created, and modified date.</li>
+        <li>Each entity has its own typesafe ID. The typesafe ID simply wraps an auto-incremented primary key in a database table.</li>
+        <li>New entity types can be added by extending Entity and EntityId.</li>
+        <li>For usage examples, see: <a class="shortcut" href="#code/src/main/scala/model/impl/Blog.scala">Blog.scala</a>,
+            <a class="shortcut" href="#code/src/main/scala/model/impl/BlogPost.scala">BlogPost.scala</a>,
+            <a class="shortcut" href="#code/src/main/scala/model/impl/User.scala">User.scala</a>
+        </li>
+    </ul>
+</p>
+<p>
+    For each entity, we extend the trait <a class="shortcut" href="#code/src/main/scala/data/EntityComponent.scala">EntityComponent.scala</a>.
+    This consists of three elements:
+    <ul>
+        <li>A <code>Table</code> definition for our entity (defined according to the Slick documentation), but also extending the <code>EntityTable</code> trait.
+            This basically requires us to define columns for the base fields (ID, version, created and modified dates).</li>
+        <li>A TableQuery value that represents the actual database table, eg. <code>val blogs = TableQuery[Blogs]</code>.
+            It is useful to have this value exposed here so other queries outside this component can join with this table.
+        </li>
+        <li>An object extending EntityQueries, which provides our entity with our common CRUD functionality. This can also be used as
+            a convenient namespace for additional queries associated with the table. This allows our database calls to be elegantly expressed,
+            eg. <code>db.run(Blogs.create(blog, user))</code>
+        </li>
+        <li>For usage examples, see: <a class="shortcut" href="#code/src/main/scala/data/impl/BlogComponent.scala">BlogComponent</a>,
+            <a class="shortcut" href="#code/src/main/scala/model/impl/BlogPostComponent.scala">BlogPostComponent.scala</a>
+            <a class="shortcut" href="#code/src/main/scala/model/impl/User.scala">User.scala</a>
+        </li>
+    </ul>
+</p>
+<p>
+    Author's note: I prefer to keep this layer simple and the code within the application itself (as opposed to a
+    separate library) in order to expose as much Slick code to developers as possible.
+</p>
+<p>
+    About dates and times: Within server applications, it is recommended to handle and store dates and time in UTC.
+    Using your system clock's default timezone can cause ambiguity problems and your production server may have a
+    different timezone to your development box. You can run into further problems if your app becomes successful and you want to
+    deploy it to multiple regions around the world, so it's best to have a consistent, explicit timezone.
+    If, like Blogimistic, your API is consumed by Javascript clients, dates output in ISO-8601 format in UTC,
+    eg. "2015-06-23T13:11:32Z" are perfect because browsers will automatically convert it to their local timezone.
+    Prefer quality date-time libraries such as Java 8 java.time or Joda-Time where date and time objects are immutable.
+</p>
+</div>
+
+
+<div>
+<h2>Optimistic locking</h2>
+<p>
+    Optimistic locking for an API can be implemented through HTTP ETag and If-Match headers.
+    <ul>
+        <li>The GET method on each API resource (eg. Blog, BlogPost) returns an ETag containing the entity's version number.</li>
+        <li>Clients making subsequent PUTs need to use the ETag value in an If-Match header.</li>
+        <li>The server will perform the update (and increment the version) only if the version number matches. Otherwise a 412 status code is returned.</li>
+    </ul>
+</p>
+<p>
+    On the server side, we have implemented 2 simple spray directives. Firstly, to expose the version number in the etag on outgoing responses:
+<pre><code>
+    get {
+        ...
+        respondWithEntityVersion(blog) {
+            complete(blog)
+        }
+    }
+</code></pre>
+    Then on incoming requests, we extract the version number from the If-Match header and use it to invoke the update query on the database:
+<pre><code>
+    put {
+      ...
+        entity(as[Blog]) { blog =>
+          entityVersion { version =>
+            ...
+            onComplete(db.run(Blogs.update(BlogId(blogId), version, blog))) {
+    }
+</code></pre>
+</p>
+<p>
+    A client side example (using Angular JS):
+    Fetching the object
+<pre><code>
+    var blogId = $routeParams.blogId;
+    var etag;
+    var blog = {};
+
+    $http.get('http://www.example.com/blogs/' + blogId)
+    .success(function(data, status, headers) {
+        blog = data;
+        // capture the etag to use for updating...
+        etag = headers("etag");
+    });
+</code></pre>
+    Performing the update:
+<pre><code>
+    $http({method: 'PUT',
+        url: 'https://www.example.com/blogs/' + blogId,
+        data: blog,
+        headers: { 'If-Match': etag }
+    })
+    .success(function(response, status, headers) {
+        etag = headers("etag");
+    })
+    .error(function(data, status) {
+        if (status == 412) {
+            // another user has edited the blog...
+        }
+    });
+</code></pre>
+    Note: your error responses also need to contain CORS headers, otherwise AngularJS app only receives status code 0.
+</p>
+</div>
+
+
+<div>
+    <h2>CORS</h2>
+    <p>We have enabled CORS to allow clients to consume our API from other domains. For the implementation, see <a class="shortcut" href="#code/src/main/scala/api/CORSSupport.scala">CORSSupport.scala</a>
+    Some things to note:
+        <ul>
+            <li>To allow cross-origin clients to implement optimistic locking, we have exposed <code>ETag</code> and allowed <code>If-Match</code> as CORS headers</li>
+            <li><code>Location</code> is an exposed header because POST respond with the location of the newly created resource.</li>
+            <li><code>Authorization</code> is an allowed header as clients will be authorizing using a Bearer token.</li>
+            <li>Error responses need CORS headers too. Otherwise cross-origin clients will only see response code 0 (and be unable to distinguish 400, 412 or 500 responses).
+                You can see in <a href="shortcut" href="#code/src/main/scala/api/CustomErrorHandling.scala">CustomErrorHandling.scala</a> we have wrapped the cors directive around exception and rejection handlers.
+            </li>
+            <li>If you don't need cross-origin support, eg. if you want bundle an Angular JS application in the same app, just remove the cors { } directive from the route.</li>
+        </ul>
+    </p>
+</div>
+
+
+<div>
+    <h2>Authentication</h2>
+    <p>
+        Blogimistic allows anyone with a Facebook account to login and create a blog. This is how it's implemented:
+        <ul>
+            <li>User logs in on the client side using the Javascript SDK</li>
+            <li>Client forwards the authResponse from Facebook to the server (POST /users/fbAuth)</li>
+            <li>The server validates the access token in the authResponse by make a call to Facebook</li>
+            <li>The server saves the users information in the database, generates its own token and returns it to the client</li>
+            <li>The client uses this token as a Bearer: token for all subsequent requests with the API.</li>
+            <li>There is an actor <a class="shortcut" href="#code/src/main/scala/actors/ExpireTokensActor.scala">ExpireTokensActor.scala</a> that periodically deletes expired token records from the database.</li>
+            <li><strong>To prevent disclosure of the bearer token, you MUST use HTTPS.</strong></li>
+            <li>For implementation, see <a class="shortcut" href="#code/src/main/scala/api/impl/UserResource.scala">UserResource.scala</a> and
+                <a class="shortcut" href="#code/src/main/scala/api/impl/authentication/token/BearerTokenAuthentication.scala">BearerTokenAuthentication.scala</a>.
+            </li>
+        </ul>
+    </p>
+</div>
+
+
+<div>
+    <h2>Authorization</h2>
+    <p>The authorization rules for Optimistic are:
+        <br/>
+        <ul>
+            <li>A user may edit or create a new post on a blog if he/she is the administrator or a contributor to the blog.</li>
+            <li>An administrator may add contributors to his/her blog.</li>
+        </ul>
+    </p>
+    <p>
+        Spray provides us with the following authorize directive:
+        <pre><code>def authorize(check: => Boolean): Directive0</code></pre>
+    </p>
+    <p>
+        We must call the database to check a user's permission to a blog; however, executing a Slick 3 database action returns a Future.
+    </p>
+    <p>Using Spray's FutureDirectives, we can write our own directive that authorizes on our Future result:
+<pre><code>
+    def checkBlogAccess(userId: UserId, blogId: BlogId): Directive0 =
+        onSuccess(db.run(BlogRoles.hasAccess(userId, blogId))).flatMap(authorize(_))
+</code></pre>
+    </p>
+</div>
+
+</body>
+</html>
