@@ -8,8 +8,8 @@ import org.scalatest.{BeforeAndAfter, FunSpec, ShouldMatchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EntityComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
-    with ScalaFutures with TestDatabaseSupport with TestEntityComponent {
+class EntityRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
+    with ScalaFutures with TestDatabaseSupport with TestEntityRepository {
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
 

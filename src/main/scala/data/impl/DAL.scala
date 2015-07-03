@@ -3,14 +3,14 @@ package data.impl
 import data.Profile
 
 /**
- * A cake of all our data tables that allows us to build a schema of our entire database.
+ * A cake of all our data repositories that allows us to build a schema of our entire database.
  * Useful for the application as it exposes all available queries, not so much for testing of individual components.
  */
-trait DAL extends UserComponent
-    with TokenComponent
-    with BlogComponent
-    with BlogRoleComponent
-    with BlogPostComponent { this: Profile =>
+trait DAL extends UserRepository
+    with TokenRepository
+    with BlogRepository
+    with BlogRoleRepository
+    with BlogPostRepository { this: Profile =>
 
   import profile.api._
 

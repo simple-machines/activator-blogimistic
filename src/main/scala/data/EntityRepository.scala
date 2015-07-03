@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 /**
  * Provides common database queries and operations for entities.
  */
-trait EntityComponent { this: Profile =>
+trait EntityRepository { this: Profile =>
 
   import profile.api._
 

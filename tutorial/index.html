@@ -67,20 +67,20 @@
     </ul>
 </p>
 <p>
-    For each entity, we extend the trait <a class="shortcut" href="#code/src/main/scala/data/EntityComponent.scala">EntityComponent.scala</a>.
+    For each entity, we extend the trait <a class="shortcut" href="#code/src/main/scala/data/EntityRepository.scala">EntityRepository.scala</a>.
     This consists of three elements:
     <ul>
         <li>A <code>Table</code> definition for our entity (defined according to the Slick documentation), but also extending the <code>EntityTable</code> trait.
             This basically requires us to define columns for the base fields (ID, version, created and modified dates).</li>
         <li>A TableQuery value that represents the actual database table, eg. <code>val blogs = TableQuery[Blogs]</code>.
-            It is useful to have this value exposed here so other queries outside this component can join with this table.
+            It is useful to have this value exposed here so other repository queries can join with this table.
         </li>
         <li>An object extending EntityQueries, which provides our entity with our common CRUD functionality. This can also be used as
             a convenient namespace for additional queries associated with the table. This allows our database calls to be elegantly expressed,
             eg. <code>db.run(Blogs.create(blog, user))</code>
         </li>
-        <li>For usage examples, see: <a class="shortcut" href="#code/src/main/scala/data/impl/BlogComponent.scala">BlogComponent</a>,
-            <a class="shortcut" href="#code/src/main/scala/model/impl/BlogPostComponent.scala">BlogPostComponent.scala</a>
+        <li>For usage examples, see: <a class="shortcut" href="#code/src/main/scala/data/impl/BlogRepository.scala">BlogRepository</a>,
+            <a class="shortcut" href="#code/src/main/scala/model/impl/BlogPostRepository.scala">BlogPostRepository.scala</a>
             <a class="shortcut" href="#code/src/main/scala/model/impl/User.scala">User.scala</a>
         </li>
     </ul>

@@ -10,9 +10,9 @@ import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BlogPostComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
-    with ScalaFutures with TestDatabaseSupport with BlogPostComponent with UserComponent with BlogComponent
-    with BlogRoleComponent with TokenComponent {
+class BlogPostRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
+    with ScalaFutures with TestDatabaseSupport with BlogPostRepository with UserRepository with BlogRepository
+    with BlogRoleRepository with TokenRepository {
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
 

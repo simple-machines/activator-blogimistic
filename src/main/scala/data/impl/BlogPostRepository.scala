@@ -1,13 +1,13 @@
 package data.impl
 
-import data.{EntityComponent, Profile}
+import data.{EntityRepository, Profile}
 import model._
 import model.impl._
 import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
 
-trait BlogPostComponent extends EntityComponent { this: Profile with BlogComponent with UserComponent =>
+trait BlogPostRepository extends EntityRepository { this: Profile with BlogRepository with UserRepository =>
 
   import profile.api._
 

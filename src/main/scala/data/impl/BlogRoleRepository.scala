@@ -1,12 +1,12 @@
 package data.impl
 
-import data.{EntityComponent, Profile}
+import data.{EntityRepository, Profile}
 import model.Version
 import model.impl.Role.Role
 import model.impl.{Role, _}
 import org.joda.time.DateTime
 
-trait BlogRoleComponent extends EntityComponent { this: Profile with BlogComponent with UserComponent =>
+trait BlogRoleRepository extends EntityRepository { this: Profile with BlogRepository with UserRepository =>
 
   import profile.api._
 

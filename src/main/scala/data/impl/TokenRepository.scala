@@ -7,7 +7,7 @@ import data.Profile
 import model.impl.{UserId, Token}
 import org.joda.time.{DateTimeZone, DateTime}
 
-trait TokenComponent { this: Profile with UserComponent =>
+trait TokenRepository { this: Profile with UserRepository =>
 
   import profile.api._
 

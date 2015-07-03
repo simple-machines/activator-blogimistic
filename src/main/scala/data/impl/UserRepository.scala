@@ -1,13 +1,13 @@
 package data.impl
 
-import data.{EntityComponent, Profile}
+import data.{EntityRepository, Profile}
 import model.Version
 import model.impl.{User, UserId}
 import org.joda.time.{DateTimeZone, DateTime}
 
 import scala.concurrent.ExecutionContext
 
-trait UserComponent extends EntityComponent { this: Profile with TokenComponent =>
+trait UserRepository extends EntityRepository { this: Profile with TokenRepository =>
 
   import profile.api._
 

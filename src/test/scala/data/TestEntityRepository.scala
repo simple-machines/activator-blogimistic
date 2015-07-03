@@ -8,7 +8,7 @@ case class TestEntityId(value: Long) extends EntityId(value)
 case class TestEntity(id: Option[TestEntityId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime],
                       name: String) extends Entity[TestEntityId]
 
-trait TestEntityComponent extends EntityComponent { this: Profile =>
+trait TestEntityRepository extends EntityRepository { this: Profile =>
 
   import profile.api._
 
