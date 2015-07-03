@@ -1,14 +1,17 @@
 package data
 
-import slick.driver.H2Driver
-import slick.jdbc.JdbcBackend._
+import slick.backend.DatabaseConfig
+import slick.driver.JdbcProfile
 
 /**
  * In-memory database profile for testing.
  */
 trait TestDatabaseSupport extends DatabaseSupport {
 
-  val db = Database.forURL("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1")
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("database.test")
 
-  val profile = H2Driver
+  val profile = dbConfig.driver
+
+  val db = dbConfig.db
+
 }

@@ -4,11 +4,11 @@ import model.Version
 import org.joda.time.{DateTimeZone, DateTime}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfter, FunSpec, ShouldMatchers}
+import org.scalatest.{BeforeAndAfter, FunSpec, ShouldMatchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EntityComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter with BeforeAndAfterAll
+class EntityComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
     with ScalaFutures with TestDatabaseSupport with TestEntityComponent {
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
@@ -31,10 +31,6 @@ class EntityComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfte
 
   after {
     db.run(testEntities.schema.drop).futureValue
-  }
-
-  override def afterAll() = {
-    db.close()
   }
 
   describe("list") {

@@ -10,7 +10,7 @@ import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BlogPostComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter with BeforeAndAfterAll
+class BlogPostComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
     with ScalaFutures with TestDatabaseSupport with BlogPostComponent with UserComponent with BlogComponent
     with BlogRoleComponent with TokenComponent {
 
@@ -21,7 +21,7 @@ class BlogPostComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAf
   val time = new DateTime(2014, 2, 26, 9, 30, DateTimeZone.UTC)
   val user = User(Some(UserId(1)), Some(Version(0)), Some(time), Some(time), "facebookId", "Test User", None, None)
 
-  val schema = blogPosts.schema ++ users.schema ++ blogs.schema ++ blogRoles.schema ++ tokens.schema
+  val schema = users.schema ++ tokens.schema ++ blogs.schema ++ blogRoles.schema ++ blogPosts.schema
 
   before {
     db.run(DBIO.seq(

@@ -10,7 +10,7 @@ import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class UserComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter with BeforeAndAfterAll
+class UserComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
     with ScalaFutures with TestDatabaseSupport with UserComponent with TokenComponent {
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))

@@ -10,7 +10,7 @@ import org.scalatest.time.{Seconds, Span}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BlogComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter with BeforeAndAfterAll
+class BlogComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter
     with ScalaFutures with TestDatabaseSupport with BlogComponent with BlogRoleComponent with UserComponent with TokenComponent {
 
   implicit override val patienceConfig = PatienceConfig(timeout = Span(5, Seconds))
@@ -20,7 +20,7 @@ class BlogComponentSpec extends FunSpec with ShouldMatchers with BeforeAndAfter 
   val time = new DateTime(2014, 2, 26, 9, 30, DateTimeZone.UTC)
   val user = User(Some(UserId(1)), Some(Version(0)), Some(time), Some(time), "facebookId", "Test User", None, None)
 
-  val schema = blogs.schema ++ blogRoles.schema ++ users.schema ++ tokens.schema
+  val schema = blogs.schema ++ users.schema ++ tokens.schema ++ blogRoles.schema
 
   before {
     db.run(DBIO.seq(

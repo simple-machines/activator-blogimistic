@@ -26,7 +26,7 @@ trait ConfigDatabaseSupport extends DatabaseSupport {
     }
     case None => {
       log.info("Initialising database from application.conf")
-      DbConfig.forConfig("database")
+      DbConfig.forConfig("database.default")
     }
   }
 

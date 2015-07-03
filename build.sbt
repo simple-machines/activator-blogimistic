@@ -24,3 +24,6 @@ libraryDependencies += "joda-time"          %   "joda-time"     % "2.8"
 libraryDependencies += "org.joda"           %   "joda-convert"  % "1.7"
 
 fork in run := true
+
+// database tests keep creating and dropping schemas in the same in-memory database so cannot run in parallel
+parallelExecution in Test := false
