@@ -41,11 +41,11 @@ class UserRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
 
   describe("findByEmail") {
     it("should return None if no matching email") {
-      db.run(Users.findByEmail("user2@example.com")).futureValue should equal (None)
+      db.run(users.findByEmail("user2@example.com")).futureValue should equal (None)
     }
 
     it("should return some user with matching email") {
-      val result = db.run(Users.findByEmail("user3@example.com")).futureValue
+      val result = db.run(users.findByEmail("user3@example.com")).futureValue
       result should be ('defined)
       result.get.id should equal (Some(UserId(3)))
     }
@@ -53,11 +53,11 @@ class UserRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
 
   describe("findByFacebookId") {
     it("should return None if no matching facebook ID") {
-      db.run(Users.findByFacebookId("123")).futureValue should equal (None)
+      db.run(users.findByFacebookId("123")).futureValue should equal (None)
     }
 
     it("should return some user with matching facebook ID") {
-      val result = db.run(Users.findByFacebookId("fb-id-3")).futureValue
+      val result = db.run(users.findByFacebookId("fb-id-3")).futureValue
       result should be ('defined)
       result.get.id should equal (Some(UserId(3)))
     }
@@ -65,11 +65,11 @@ class UserRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
 
   describe("findByToken") {
     it("should not return user with expired token") {
-      db.run(Users.findByToken("token1")).futureValue should equal (None)
+      db.run(users.findByToken("token1")).futureValue should equal (None)
     }
 
     it("should return the user with the given token") {
-      val result = db.run(Users.findByToken("token3")).futureValue
+      val result = db.run(users.findByToken("token3")).futureValue
       result should be ('defined)
       result.get.id should equal (Some(UserId(3)))
     }
@@ -78,16 +78,16 @@ class UserRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
   describe("upsertByFacebookId") {
     it("should insert a new record if the given facebook ID is not found") {
       val user = new User("fb-id-4", "User4", Some("user4@example.com"), Some("http://www.example.com/user4.png"))
-      val result = db.run(Users.upsertByFacebookId(user)).futureValue
+      val result = db.run(users.upsertByFacebookId(user)).futureValue
       result.id should equal (Some(UserId(4)))
     }
 
     it("should update the existing record if the given facebook ID exists") {
       val user = new User("fb-id-2", "User2", Some("user2@example.com"), Some("http://www.example.com/user2.png"))
-      db.run(Users.upsertByFacebookId(user)).futureValue
+      db.run(users.upsertByFacebookId(user)).futureValue
 
       // re-fetch the value from the database to make sure it is updated
-      val result = db.run(Users.get(UserId(2))).futureValue
+      val result = db.run(users.get(UserId(2))).futureValue
       result.email should equal (Some("user2@example.com"))
       result.picture should equal (Some("http://www.example.com/user2.png"))
     }

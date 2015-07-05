@@ -26,9 +26,7 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
     def * = (id.?, version.?, created.?, modified.?, facebookId, name, email, picture) <> (User.tupled, User.unapply)
   }
 
-  val users = TableQuery[Users]
-
-  object Users extends EntityQueries(users) {
+  object users extends EntityQueries[UserId, User, Users](new Users(_)) {
 
     def copyEntityFields(entity: User, id: Option[UserId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): User =
       entity.copy(id = id, version = version, created = created, modified = modified)

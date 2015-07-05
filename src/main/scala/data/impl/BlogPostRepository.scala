@@ -27,9 +27,7 @@ trait BlogPostRepository extends EntityRepository { this: Profile with BlogRepos
     def * = (id.?, version.?, created.?, modified.?, blogId, authorId, title, content) <> (BlogPost.tupled, BlogPost.unapply)
   }
 
-  val blogPosts = TableQuery[BlogPosts]
-
-  object BlogPosts extends EntityQueries(blogPosts) {
+  object blogPosts extends EntityQueries[BlogPostId, BlogPost, BlogPosts](new BlogPosts(_)) {
 
     def copyEntityFields(entity: BlogPost, id: Option[BlogPostId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): BlogPost =
       entity.copy(id = id, version = version, created = created, modified = modified)

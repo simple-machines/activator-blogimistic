@@ -26,7 +26,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
     path("blogs") {
       get {
         respondWithMediaType(`application/json`) {
-          onComplete(db.run(Blogs.list())) {
+          onComplete(db.run(blogs.list())) {
             case Success(blogs) => complete(blogs)
             case Failure(ex) => failWith(ex)
           }
@@ -36,7 +36,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
         authenticate(bearerToken) { user =>
           entity(as[Blog]) { blog =>
             requestUri { uri =>
-              onComplete(db.run(Blogs.create(blog, user))) {
+              onComplete(db.run(blogs.create(blog, user))) {
                 case Success(blog) => {
                   respondWithHeader(Location(s"$uri/${blog.id.get}")) {
                     complete(Created)
@@ -53,7 +53,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
       pathEnd {
         get {
           respondWithMediaType(`application/json`) {
-            onComplete(db.run(Blogs.get(BlogId(blogId)))) {
+            onComplete(db.run(blogs.get(BlogId(blogId)))) {
               case Success(blog) => {
                 respondWithEntityVersion(blog) {
                   complete(blog)
@@ -69,7 +69,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
               entityVersion { version =>
                 checkBlogAccess(user.id.get, BlogId(blogId)) {
                   respondWithMediaType(`application/json`) {
-                    onComplete(db.run(Blogs.update(BlogId(blogId), version, blog))) {
+                    onComplete(db.run(blogs.update(BlogId(blogId), version, blog))) {
                       case Success(blog) => {
                         respondWithEntityVersion(blog) {
                           complete(blog)
@@ -88,7 +88,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
         get {
           parameters('offset.as[Int], 'limit.as[Int]) { (offset, limit) =>
             respondWithMediaType(`application/json`) {
-              onComplete(db.run(BlogPosts.paginateByBlog(BlogId(blogId), offset, limit))) {
+              onComplete(db.run(blogPosts.paginateByBlog(BlogId(blogId), offset, limit))) {
                 case Success(blogPostPage) => complete(blogPostPage)
                 case Failure(ex) => failWith(ex)
               }
@@ -100,7 +100,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
             checkBlogAccess(user.id.get, BlogId(blogId)) {
               entity(as[BlogPost]) { blogPost =>
                 requestUri { uri =>
-                  onComplete(db.run(BlogPosts.insert(blogPost))) {
+                  onComplete(db.run(blogPosts.insert(blogPost))) {
                     case Success(blogPost) => {
                       respondWithHeader(Location(s"$uri/${blogPost.id.get}")) {
                         complete(Created)
@@ -117,7 +117,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
       pathPrefix("posts" / IntNumber) { blogPostId =>
         get {
           respondWithMediaType(`application/json`) {
-            onComplete(db.run(BlogPosts.get(BlogPostId(blogPostId)))) {
+            onComplete(db.run(blogPosts.get(BlogPostId(blogPostId)))) {
               case Success(blogPost) => {
                 respondWithEntityVersion(blogPost) {
                   complete(blogPost)
@@ -133,7 +133,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
               entity(as[BlogPost]) { blogPost =>
                 entityVersion { version =>
                   respondWithMediaType(`application/json`) {
-                    onComplete(db.run(BlogPosts.update(BlogPostId(blogPostId), version, blogPost))) {
+                    onComplete(db.run(blogPosts.update(BlogPostId(blogPostId), version, blogPost))) {
                       case Success(blogPost) => {
                         respondWithEntityVersion(blogPost) {
                           complete(blogPost)
@@ -153,7 +153,7 @@ class BlogResource(val dataAccess: DatabaseSupport with DAL)(implicit val dbDisp
           authenticate(bearerToken) { user =>
             checkBlogAdmin(user.id.get, BlogId(blogId)) {
               entity(as[BlogRole]) { blogRole =>
-                onComplete(db.run(BlogRoles.insert(blogRole))) {
+                onComplete(db.run(blogRoles.insert(blogRole))) {
                   case Success(blogRole) => complete(Created)
                   case Failure(ex) => failWith(ex)
                 }

@@ -32,9 +32,7 @@ trait BlogRoleRepository extends EntityRepository { this: Profile with BlogRepos
     def * = (id.?, version.?, created.?, modified.?, blogId, userId, role) <> (BlogRole.tupled, BlogRole.unapply)
   }
 
-  val blogRoles = TableQuery[BlogRoles]
-
-  object BlogRoles extends EntityQueries(blogRoles) {
+  object blogRoles extends EntityQueries[BlogRoleId, BlogRole, BlogRoles](new BlogRoles(_)) {
     def copyEntityFields(entity: BlogRole, id: Option[BlogRoleId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): BlogRole =
       entity.copy(id = id, version = version, created = created, modified = modified)
 

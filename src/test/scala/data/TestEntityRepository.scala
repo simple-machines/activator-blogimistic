@@ -22,9 +22,7 @@ trait TestEntityRepository extends EntityRepository { this: Profile =>
     def * = (id.?, version.?, created.?, modified.?, name) <> (TestEntity.tupled, TestEntity.unapply)
   }
 
-  val testEntities = TableQuery[TestEntities]
-
-  object TestEntities extends EntityQueries(testEntities) {
+  object testEntities extends EntityQueries[TestEntityId, TestEntity, TestEntities](new TestEntities(_)) {
 
     def copyEntityFields(entity: TestEntity, id: Option[TestEntityId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): TestEntity =
       entity.copy(id = id, version = version, created = created, modified = modified)

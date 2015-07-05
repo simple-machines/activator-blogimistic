@@ -24,9 +24,7 @@ trait BlogRepository extends EntityRepository { this: Profile with BlogRoleRepos
     def * = (id.?, version.?, created.?, modified.?, name, description) <> (Blog.tupled, Blog.unapply)
   }
 
-  val blogs = TableQuery[Blogs]
-
-  object Blogs extends EntityQueries(blogs) {
+  object blogs extends EntityQueries[BlogId, Blog, Blogs](new Blogs(_)) {
 
     def copyEntityFields(entity: Blog, id: Option[BlogId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): Blog =
       entity.copy(id = id, version = version, created = created, modified = modified)
@@ -37,7 +35,7 @@ trait BlogRepository extends EntityRepository { this: Profile with BlogRoleRepos
     def create(blog: Blog, creator: User)(implicit ec: ExecutionContext): DBIO[Blog] = {
       (for {
         b <- insert(blog)
-        br <- BlogRoles.insert(new BlogRole(b.id.get, creator.id.get, Role.ADMIN))
+        br <- blogRoles.insert(new BlogRole(b.id.get, creator.id.get, Role.ADMIN))
       } yield b).transactionally
     }
   }

@@ -4,7 +4,6 @@ import java.sql.Timestamp
 
 import model.{Version, EntityId, Entity}
 import org.joda.time.{DateTimeZone, DateTime}
-import slick.ast.BaseTypedType
 
 import scala.concurrent.ExecutionContext
 
@@ -39,8 +38,10 @@ trait EntityRepository { this: Profile =>
   /**
    * Subclass this for each entity table to get these common operations for free.
    */
-  abstract class EntityQueries[I <: EntityId: BaseColumnType, E <: Entity[I]](tableQuery: Query[EntityTable[I, E], E, Seq])
-                                                             (implicit tt: BaseTypedType[I]) {
+  abstract class EntityQueries[I <: EntityId: BaseColumnType, E <: Entity[I], T <: EntityTable[I, E]](cons: Tag => T)
+    extends TableQuery(cons) {
+
+    def tableQuery = this
 
     /**
      * Subclasses simply need to copy the given ID, version, created and modified values into the entity.

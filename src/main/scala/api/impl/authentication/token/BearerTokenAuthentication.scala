@@ -14,7 +14,7 @@ trait BearerTokenAuthentication {
   def bearerToken = BearerToken(
     TokenAuthenticator[User] {
       case None => Future(None)
-      case Some(t) => dataAccess.db.run(dataAccess.Users.findByToken(t))
+      case Some(t) => dataAccess.db.run(dataAccess.users.findByToken(t))
     }
   )
 }

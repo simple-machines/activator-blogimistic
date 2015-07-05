@@ -23,9 +23,7 @@ trait TokenRepository { this: Profile with UserRepository =>
     def * = (token, userId, expires) <> (Token.tupled, Token.unapply)
   }
 
-  val tokens = TableQuery[Tokens]
-
-  object Tokens {
+  object tokens extends TableQuery(new Tokens(_)) {
 
     val TTL_MINUTES = 120
 

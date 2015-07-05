@@ -36,9 +36,9 @@ class UserResource(val dataAccess: DAL with DatabaseSupport)(implicit val dbDisp
                   withHeaders(Accept(MediaTypes.`application/json`)))
                 fbUserPicture <- fbUserPicturePipeline(Get(s"https://graph.facebook.com/v2.3/me/picture?redirect=false&access_token=${authResponse.accessToken}").
                   withHeaders(Accept(MediaTypes.`application/json`)))
-                user <- db.run(Users.upsertByFacebookId(
+                user <- db.run(users.upsertByFacebookId(
                   new User(facebookId = fbUser.id, name = fbUser.first_name, email = fbUser.email, picture = fbUserPicture.data.flatMap(_.url))))
-                token <- db.run(Tokens.generateToken(user.id.get))
+                token <- db.run(tokens.generateToken(user.id.get))
               } yield token
               futureToken onComplete {
                 case Success(token) => ctx.complete(token)

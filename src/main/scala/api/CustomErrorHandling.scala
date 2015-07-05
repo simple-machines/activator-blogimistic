@@ -1,9 +1,8 @@
 package api
 
-import api.CORSSupport
 import data.StaleStateException
 import spray.http.StatusCodes._
-import spray.routing.{Directives, RejectionHandler, ExceptionHandler}
+import spray.routing.{Directives, ExceptionHandler, RejectionHandler}
 
 trait CustomErrorHandling extends CORSSupport { this: Directives =>
 

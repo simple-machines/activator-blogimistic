@@ -35,75 +35,75 @@ class EntityRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAft
 
   describe("list") {
     it("should return all entities in the table") {
-      db.run(TestEntities.list()).futureValue should equal (testData)
+      db.run(testEntities.list()).futureValue should equal (testData)
     }
   }
 
   describe("get") {
     it("should return the entity with the given ID") {
-      db.run(TestEntities.get(TestEntityId(2))).futureValue should equal (testData(1))
+      db.run(testEntities.get(TestEntityId(2))).futureValue should equal (testData(1))
     }
 
     it("should throw an exception if the given ID does not exist") {
       an[Exception] shouldBe thrownBy {
-        db.run(TestEntities.get(TestEntityId(3))).futureValue
+        db.run(testEntities.get(TestEntityId(3))).futureValue
       }
     }
   }
 
   describe("find") {
     it("should return the entity with the given ID") {
-      db.run(TestEntities.find(TestEntityId(2))).futureValue should equal (Some(testData(1)))
+      db.run(testEntities.find(TestEntityId(2))).futureValue should equal (Some(testData(1)))
     }
 
     it("should return None if the given ID does not exist") {
-      db.run(TestEntities.find(TestEntityId(3))).futureValue should equal (None)
+      db.run(testEntities.find(TestEntityId(3))).futureValue should equal (None)
     }
   }
 
   describe("count") {
     it("should return the number of entities in the table") {
-      db.run(TestEntities.count()).futureValue should equal (2)
+      db.run(testEntities.count()).futureValue should equal (2)
     }
   }
 
   describe("insert") {
     it("should insert the entity and return the entity back with ID populated") {
-      val result = db.run(TestEntities.insert(TestEntity(None, None, None, None, "New Entity"))).futureValue
+      val result = db.run(testEntities.insert(TestEntity(None, None, None, None, "New Entity"))).futureValue
 
       result.id should equal (Some(TestEntityId(3)))
       result.version should equal (Some(Version(0)))
       result.created shouldBe defined
       result.modified shouldBe defined
 
-      db.run(TestEntities.list()).futureValue should contain (result)
+      db.run(testEntities.list()).futureValue should contain (result)
     }
   }
 
   describe("update") {
     it("should update the entity and return the entity back with the next version number") {
-      val result = db.run(TestEntities.update(testData.head.copy(name = "Updated name"))).futureValue
+      val result = db.run(testEntities.update(testData.head.copy(name = "Updated name"))).futureValue
 
       result.version should equal (Some(Version(1)))
     }
 
     it("should throw an optimistic locking exception if an update on the same version number has preceeded the update") {
-      val update1 = db.run(TestEntities.update(testData.head.copy(name = "Update #1"))).futureValue
+      val update1 = db.run(testEntities.update(testData.head.copy(name = "Update #1"))).futureValue
       update1.version should equal (Some(Version(1)))
 
-      whenReady(db.run(TestEntities.update(testData.head.copy(name = "Update #2"))).failed) { e =>
+      whenReady(db.run(testEntities.update(testData.head.copy(name = "Update #2"))).failed) { e =>
         e shouldBe an [StaleStateException]
       }
 
-      db.run(TestEntities.get(TestEntityId(1))).futureValue should equal (update1)
+      db.run(testEntities.get(TestEntityId(1))).futureValue should equal (update1)
     }
   }
 
   describe("delete") {
     it("should delete the entity with the given ID and return the number of entities deleted") {
-      db.run(TestEntities.delete(TestEntityId(1))).futureValue should equal (1)
+      db.run(testEntities.delete(TestEntityId(1))).futureValue should equal (1)
 
-      db.run(TestEntities.find(TestEntityId(1))).futureValue should equal (None)
+      db.run(testEntities.find(TestEntityId(1))).futureValue should equal (None)
     }
   }
 }

@@ -68,16 +68,13 @@
 </p>
 <p>
     For each entity, we extend the trait <a class="shortcut" href="#code/src/main/scala/data/EntityRepository.scala">EntityRepository.scala</a>.
-    This consists of three elements:
+    This consists of two elements:
     <ul>
         <li>A <code>Table</code> definition for our entity (defined according to the Slick documentation), but also extending the <code>EntityTable</code> trait.
             This basically requires us to define columns for the base fields (ID, version, created and modified dates).</li>
-        <li>A TableQuery value that represents the actual database table, eg. <code>val blogs = TableQuery[Blogs]</code>.
-            It is useful to have this value exposed here so other repository queries can join with this table.
-        </li>
-        <li>An object extending EntityQueries, which provides our entity with our common CRUD functionality. This can also be used as
-            a convenient namespace for additional queries associated with the table. This allows our database calls to be elegantly expressed,
-            eg. <code>db.run(Blogs.create(blog, user))</code>
+        <li>An object extending EntityQueries, which provides our entity with our common CRUD functionality. This also provides
+            a convenient namespace for additional queries associated with the table (like a DAO).
+            This allows our database calls to be elegantly expressed, eg. <code>db.run(blogs.create(blog, user))</code>
         </li>
         <li>For usage examples, see: <a class="shortcut" href="#code/src/main/scala/data/impl/BlogRepository.scala">BlogRepository</a>,
             <a class="shortcut" href="#code/src/main/scala/model/impl/BlogPostRepository.scala">BlogPostRepository.scala</a>
@@ -128,7 +125,7 @@
         entity(as[Blog]) { blog =>
           entityVersion { version =>
             ...
-            onComplete(db.run(Blogs.update(BlogId(blogId), version, blog))) {
+            onComplete(db.run(blogs.update(BlogId(blogId), version, blog))) {
     }
 </code></pre>
 </p>
@@ -224,7 +221,7 @@
     <p>Using Spray's FutureDirectives, we can write our own directive that authorizes on our Future result:
 <pre><code>
     def checkBlogAccess(userId: UserId, blogId: BlogId): Directive0 =
-        onSuccess(db.run(BlogRoles.hasAccess(userId, blogId))).flatMap(authorize(_))
+        onSuccess(db.run(blogRoles.hasAccess(userId, blogId))).flatMap(authorize(_))
 </code></pre>
     </p>
 </div>

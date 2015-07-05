@@ -16,12 +16,12 @@ trait BlogAuthorization extends Directives {
    * Checks if a user is allowed to update a blog (ie. is an admin or contributor).
    */
   def checkBlogAccess(userId: UserId, blogId: BlogId): Directive0 =
-    onSuccess(dataAccess.db.run(dataAccess.BlogRoles.hasAccess(userId, blogId))).flatMap(authorize(_))
+    onSuccess(dataAccess.db.run(dataAccess.blogRoles.hasAccess(userId, blogId))).flatMap(authorize(_))
 
   /**
    * Checks if a user is an admin of the given blog.
    */
   def checkBlogAdmin(userId: UserId, blogId: BlogId): Directive0 =
-    onSuccess(dataAccess.db.run(dataAccess.BlogRoles.isAdmin(userId, blogId))).flatMap(authorize(_))
+    onSuccess(dataAccess.db.run(dataAccess.blogRoles.isAdmin(userId, blogId))).flatMap(authorize(_))
 
 }

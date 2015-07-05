@@ -24,7 +24,7 @@ class ExpireTokensActor(dbAccess: DAL with DatabaseSupport) extends Actor with A
 
   def receive = {
     case "tick" => {
-      db.run(Tokens.deleteExpiredTokens()) onComplete {
+      db.run(tokens.deleteExpiredTokens()) onComplete {
         case Success(deleted) => log.debug("Deleted {} expired tokens", deleted)
         case Failure(ex) => log.error("Unable to delete expired tokens", ex)
       }

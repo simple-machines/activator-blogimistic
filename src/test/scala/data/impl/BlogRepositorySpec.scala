@@ -36,10 +36,10 @@ class BlogRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAfter
   describe("create") {
     it("should create a blog and set the creator as the administrator") {
       val blog = new Blog("My blog", "Description")
-      val result = db.run(Blogs.create(blog, user)).futureValue
+      val result = db.run(blogs.create(blog, user)).futureValue
       result.id should be ('defined)
 
-      db.run(BlogRoles.isAdmin(user.id.get, result.id.get)).futureValue should be (true)
+      db.run(blogRoles.isAdmin(user.id.get, result.id.get)).futureValue should be (true)
     }
   }
 }

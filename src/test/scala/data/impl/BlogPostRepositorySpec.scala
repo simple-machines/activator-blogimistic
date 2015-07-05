@@ -44,13 +44,13 @@ class BlogPostRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndA
 
   describe("paginateByBlog") {
     it("should handle blogs with no posts") {
-      val result = db.run(BlogPosts.paginateByBlog(BlogId(2), 1, 1)).futureValue
+      val result = db.run(blogPosts.paginateByBlog(BlogId(2), 1, 1)).futureValue
       result.total should equal (0)
       result.blogPosts should equal (Seq.empty)
     }
 
     it("should return page with the given offset/limit in descending order") {
-      val result = db.run(BlogPosts.paginateByBlog(BlogId(1), 2, 2)).futureValue
+      val result = db.run(blogPosts.paginateByBlog(BlogId(1), 2, 2)).futureValue
       result.total should equal (5)
       result.blogPosts.size should equal (2)
       result.blogPosts.head.id should equal (Some(BlogPostId(3)))
@@ -58,7 +58,7 @@ class BlogPostRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndA
     }
 
     it("should return remaining results on the last page") {
-      val result = db.run(BlogPosts.paginateByBlog(BlogId(1), 4, 2)).futureValue
+      val result = db.run(blogPosts.paginateByBlog(BlogId(1), 4, 2)).futureValue
       result.total should equal (5)
       result.blogPosts.size should equal (1)
       result.blogPosts.head.id should equal (Some(BlogPostId(1)))
