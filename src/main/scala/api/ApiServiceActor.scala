@@ -2,7 +2,6 @@ package api
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.event.Logging._
-import api.CORSSupport
 import spray.http.{HttpRequest, HttpResponse}
 import spray.routing._
 import spray.routing.directives.LogEntry
