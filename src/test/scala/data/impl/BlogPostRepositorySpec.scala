@@ -1,9 +1,10 @@
 package data.impl
 
+import java.time.{LocalDateTime, ZoneOffset}
+
 import data.TestDatabaseSupport
 import model.Version
 import model.impl._
-import org.joda.time.{DateTimeZone, DateTime}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
@@ -18,7 +19,7 @@ class BlogPostRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndA
 
   import profile.api._
 
-  val time = new DateTime(2014, 2, 26, 9, 30, DateTimeZone.UTC)
+  val time = LocalDateTime.of(2014, 2, 26, 9, 30).toInstant(ZoneOffset.UTC)
   val user = User(Some(UserId(1)), Some(Version(0)), Some(time), Some(time), "facebookId", "Test User", None, None)
 
   val schema = users.schema ++ tokens.schema ++ blogs.schema ++ blogRoles.schema ++ blogPosts.schema

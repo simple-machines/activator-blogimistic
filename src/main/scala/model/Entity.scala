@@ -1,6 +1,7 @@
 package model
 
-import org.joda.time.DateTime
+import java.time.Instant
+
 import slick.lifted.MappedTo
 
 /**
@@ -21,8 +22,8 @@ trait Entity[I <: EntityId] {
 
   def id: Option[I]
   def version: Option[Version]
-  def created: Option[DateTime]
-  def modified: Option[DateTime]
+  def created: Option[Instant]
+  def modified: Option[Instant]
 
   def isPersisted = id.isDefined
 }

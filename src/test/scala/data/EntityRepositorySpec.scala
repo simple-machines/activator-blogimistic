@@ -1,7 +1,8 @@
 package data
 
+import java.time.{ZoneOffset, LocalDateTime, Clock, ZonedDateTime}
+
 import model.Version
-import org.joda.time.{DateTimeZone, DateTime}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{BeforeAndAfter, FunSpec, ShouldMatchers}
@@ -15,11 +16,12 @@ class EntityRepositorySpec extends FunSpec with ShouldMatchers with BeforeAndAft
 
   import profile.api._
 
-  val time = new DateTime(2014, 2, 26, 9, 30, DateTimeZone.UTC)
+  val time = LocalDateTime.of(2014, 2, 26, 9, 30)
+  val inst = time.toInstant(ZoneOffset.UTC)
 
   val testData = List(
-    TestEntity(Some(TestEntityId(1)), Some(Version(0)), Some(time), Some(time), "Entity 1"),
-    TestEntity(Some(TestEntityId(2)), Some(Version(0)), Some(time), Some(time), "Entity 2")
+    TestEntity(Some(TestEntityId(1)), Some(Version(0)), Some(inst), Some(inst), "Entity 1"),
+    TestEntity(Some(TestEntityId(2)), Some(Version(0)), Some(inst), Some(inst), "Entity 2")
   )
 
   before {

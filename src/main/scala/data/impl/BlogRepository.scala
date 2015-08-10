@@ -1,9 +1,10 @@
 package data.impl
 
+import java.time.Instant
+
 import data.{EntityRepository, Profile}
 import model._
 import model.impl._
-import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
 
@@ -14,8 +15,8 @@ trait BlogRepository extends EntityRepository { this: Profile with BlogRoleRepos
   class Blogs(tag: Tag) extends Table[Blog](tag, "blogs") with EntityTable[BlogId, Blog] {
     def id = column[BlogId]("id", O.PrimaryKey, O.AutoInc)
     def version = column[Version]("version")
-    def created = column[DateTime]("created")
-    def modified = column[DateTime]("modified")
+    def created = column[Instant]("created")
+    def modified = column[Instant]("modified")
     def name = column[String]("name")
     def description = column[String]("description")
 
@@ -26,7 +27,7 @@ trait BlogRepository extends EntityRepository { this: Profile with BlogRoleRepos
 
   object blogs extends EntityQueries[BlogId, Blog, Blogs](new Blogs(_)) {
 
-    def copyEntityFields(entity: Blog, id: Option[BlogId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): Blog =
+    def copyEntityFields(entity: Blog, id: Option[BlogId], version: Option[Version], created: Option[Instant], modified: Option[Instant]): Blog =
       entity.copy(id = id, version = version, created = created, modified = modified)
 
     /**

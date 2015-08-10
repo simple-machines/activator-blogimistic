@@ -1,9 +1,10 @@
 package data.impl
 
+import java.time.Instant
+
 import data.{EntityRepository, Profile}
 import model.Version
 import model.impl.{User, UserId}
-import org.joda.time.{DateTimeZone, DateTime}
 
 import scala.concurrent.ExecutionContext
 
@@ -14,8 +15,8 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
   class Users(tag: Tag) extends Table[User](tag, "users") with EntityTable[UserId, User] {
     def id = column[UserId]("id", O.PrimaryKey, O.AutoInc)
     def version = column[Version]("version")
-    def created = column[DateTime]("created")
-    def modified = column[DateTime]("modified")
+    def created = column[Instant]("created")
+    def modified = column[Instant]("modified")
     def facebookId = column[String]("facebook_id")
     def name = column[String]("name")
     def email = column[Option[String]]("email")
@@ -28,7 +29,7 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
 
   object users extends EntityQueries[UserId, User, Users](new Users(_)) {
 
-    def copyEntityFields(entity: User, id: Option[UserId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): User =
+    def copyEntityFields(entity: User, id: Option[UserId], version: Option[Version], created: Option[Instant], modified: Option[Instant]): User =
       entity.copy(id = id, version = version, created = created, modified = modified)
 
     def findByEmail(email: String) =
@@ -39,7 +40,7 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
 
     def findByToken(token: String) =
       (for {
-        t <- tokens if t.token === token if t.expires > DateTime.now(DateTimeZone.UTC)
+        t <- tokens if t.token === token if t.expires > Instant.now()
         u <- users if t.userId === u.id
       } yield u).result.headOption
 

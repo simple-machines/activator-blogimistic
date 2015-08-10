@@ -1,12 +1,14 @@
 package api.impl
 
+import java.time.{ZoneOffset, LocalDateTime, Instant}
+import java.time.temporal.ChronoUnit
+
 import api.{CustomErrorHandling, Api}
 import core.Core
 import data.TestDatabaseSupport
 import data.impl.DAL
 import model.Version
 import model.impl._
-import org.joda.time.{DateTimeZone, DateTime}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{BeforeAndAfter, FunSpec, ShouldMatchers}
@@ -28,8 +30,8 @@ class BlogResourceSpec extends FunSpec with ShouldMatchers with ScalaFutures wit
   import JsonProtocol._
   import SprayJsonSupport._
 
-  val time = new DateTime(2014, 2, 26, 9, 30, DateTimeZone.UTC)
-  val expires = DateTime.now().plusDays(30)
+  val time = LocalDateTime.of(2014, 2, 26, 9, 30).toInstant(ZoneOffset.UTC)
+  val expires = Instant.now().plus(30, ChronoUnit.DAYS)
 
   val user1 = User(Some(UserId(1)), Some(Version(0)), Some(time), Some(time), "fb-id-1", "Test User1", None, None)
   val user2 = User(Some(UserId(2)), Some(Version(0)), Some(time), Some(time), "fb-id-2", "Test User2", None, None)

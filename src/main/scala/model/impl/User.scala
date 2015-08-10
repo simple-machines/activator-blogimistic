@@ -1,11 +1,12 @@
 package model.impl
 
-import model.{EntityId, Entity, Version}
-import org.joda.time.DateTime
+import java.time.Instant
+
+import model.{Entity, EntityId, Version}
 
 case class UserId(value: Long) extends EntityId(value)
 
-case class User(id: Option[UserId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime],
+case class User(id: Option[UserId], version: Option[Version], created: Option[Instant], modified: Option[Instant],
                 facebookId: String, name: String, email: Option[String], picture: Option[String]) extends Entity[UserId] {
 
   def this(facebookId: String, name: String, email: Option[String], picture: Option[String]) =

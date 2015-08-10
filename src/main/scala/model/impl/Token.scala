@@ -1,8 +1,8 @@
 package model.impl
 
-import org.joda.time.DateTime
+import java.time.Instant
 
 /**
  * An access token to authorize a user on the API.
  */
-case class Token(token: String, userId: UserId, expires: DateTime)
+case class Token(token: String, userId: UserId, expires: Instant)

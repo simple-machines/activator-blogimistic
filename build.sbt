@@ -19,9 +19,6 @@ libraryDependencies += "io.spray"           %%  "spray-client"  % "1.3.3"
 libraryDependencies += "com.typesafe.akka"  %%  "akka-actor"    % "2.3.9"
 libraryDependencies += "com.typesafe.akka"  %%  "akka-testkit"  % "2.3.9"   % "test"
 libraryDependencies += "ch.qos.logback"     % "logback-classic" % "1.1.3"
-libraryDependencies += "joda-time"          %   "joda-time"     % "2.8"
-// joda-convert is required to use joda-time in scala
-libraryDependencies += "org.joda"           %   "joda-convert"  % "1.7"
 
 fork in run := true
 

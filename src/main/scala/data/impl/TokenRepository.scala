@@ -1,11 +1,14 @@
 package data.impl
 
 import java.security.SecureRandom
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Base64
 
 import data.Profile
 import model.impl.{UserId, Token}
-import org.joda.time.{DateTimeZone, DateTime}
+
+import scala.concurrent.ExecutionContext
 
 trait TokenRepository { this: Profile with UserRepository =>
 
@@ -14,7 +17,7 @@ trait TokenRepository { this: Profile with UserRepository =>
   class Tokens(tag: Tag) extends Table[Token](tag, "tokens") {
     def token = column[String]("token")
     def userId = column[UserId]("user_id_fk")
-    def expires = column[DateTime]("expires")
+    def expires = column[Instant]("expires")
 
     def tokenUniqueIdx = index("token_unq", token, unique = true)
 
@@ -31,11 +34,10 @@ trait TokenRepository { this: Profile with UserRepository =>
      * Generate a random string and associate it with the given user in the database.
      * @return [[Token]] with token string and expires date populated.
      */
-    def generateToken(userId: UserId): DBIO[Token] = {
-      val expires = DateTime.now(DateTimeZone.UTC).plusMinutes(TTL_MINUTES)
+    def generateToken(userId: UserId)(implicit ec: ExecutionContext): DBIO[Token] = {
+      val expires = Instant.now().plus(TTL_MINUTES, ChronoUnit.MINUTES)
       val token = Token(randomString(), userId, expires)
-      (tokens returning tokens.map(_.token) into { case(t, tok) => t }
-        ) += token
+      (tokens += token).map(_ => token)
     }
 
     /**
@@ -43,7 +45,7 @@ trait TokenRepository { this: Profile with UserRepository =>
      * @return number of tokens deleted.
      */
     def deleteExpiredTokens(): DBIO[Int] = {
-      val now = DateTime.now(DateTimeZone.UTC)
+      val now = Instant.now()
       (for (t <- tokens if t.expires < now) yield t).delete
     }
 

@@ -1,10 +1,10 @@
 package api.impl
 
+import java.time.Instant
+
 import model.Version
 import model.impl.Role.Role
 import model.impl._
-import org.joda.time.DateTime
-import org.joda.time.format.ISODateTimeFormat
 import spray.json._
 
 object JsonProtocol extends DefaultJsonProtocol {
@@ -45,13 +45,10 @@ object JsonProtocol extends DefaultJsonProtocol {
     def write(obj: Role): JsValue = JsString(obj.toString)
   }
 
-  implicit object DateTimeFormat extends JsonFormat[DateTime] {
-    val dateTimeParser = ISODateTimeFormat.dateTimeParser().withZoneUTC()
-    val dateTimePrinter = ISODateTimeFormat.dateTimeNoMillis().withZoneUTC()
+  implicit object InstantFormat extends JsonFormat[Instant] {
+    def read(json: JsValue): Instant = Instant.parse(json.convertTo[String])
 
-    def read(json: JsValue): DateTime = dateTimeParser.parseDateTime(json.convertTo[String])
-
-    def write(obj: DateTime): JsValue = JsString(dateTimePrinter.print(obj))
+    def write(obj: Instant): JsValue = JsString(obj.toString)
   }
 
   implicit val tokenFormat = jsonFormat3(Token)

@@ -1,9 +1,10 @@
 package data.impl
 
+import java.time.Instant
+
 import data.{EntityRepository, Profile}
 import model._
 import model.impl._
-import org.joda.time.DateTime
 
 import scala.concurrent.ExecutionContext
 
@@ -14,8 +15,8 @@ trait BlogPostRepository extends EntityRepository { this: Profile with BlogRepos
   class BlogPosts(tag: Tag) extends Table[BlogPost](tag, "blog_posts") with EntityTable[BlogPostId, BlogPost] {
     def id = column[BlogPostId]("id", O.PrimaryKey, O.AutoInc)
     def version = column[Version]("version")
-    def created = column[DateTime]("created")
-    def modified = column[DateTime]("modified")
+    def created = column[Instant]("created")
+    def modified = column[Instant]("modified")
     def blogId = column[BlogId]("blog_id_fk")
     def authorId = column[UserId]("user_id_fk")
     def title = column[String]("title")
@@ -29,7 +30,7 @@ trait BlogPostRepository extends EntityRepository { this: Profile with BlogRepos
 
   object blogPosts extends EntityQueries[BlogPostId, BlogPost, BlogPosts](new BlogPosts(_)) {
 
-    def copyEntityFields(entity: BlogPost, id: Option[BlogPostId], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): BlogPost =
+    def copyEntityFields(entity: BlogPost, id: Option[BlogPostId], version: Option[Version], created: Option[Instant], modified: Option[Instant]): BlogPost =
       entity.copy(id = id, version = version, created = created, modified = modified)
 
     def paginateByBlog(blogId: BlogId, offset: Int, limit: Int)(implicit ec: ExecutionContext): DBIO[BlogPostPage] = {

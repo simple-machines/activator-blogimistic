@@ -1,9 +1,9 @@
 package data
 
 import java.sql.Timestamp
+import java.time.Instant
 
-import model.{Version, EntityId, Entity}
-import org.joda.time.{DateTimeZone, DateTime}
+import model.{Entity, EntityId, Version}
 
 import scala.concurrent.ExecutionContext
 
@@ -15,11 +15,11 @@ trait EntityRepository { this: Profile =>
   import profile.api._
 
   /**
-   * Type mapper for joda DateTime. Dates are stored in UTC.
+   * Instant to Timestamp mapper.
    */
-  implicit val dateTimeMapper = MappedColumnType.base[DateTime, Timestamp] (
-    dateTime => if (dateTime == null) null else new Timestamp(dateTime.getMillis),
-    ts => if (ts == null) null else new DateTime(ts.getTime, DateTimeZone.UTC)
+  implicit val instantMapper = MappedColumnType.base[Instant, Timestamp] (
+    inst => if (inst == null) null else Timestamp.from(inst),
+    ts => if (ts == null) null else ts.toInstant
   )
 
   /**
@@ -31,8 +31,8 @@ trait EntityRepository { this: Profile =>
   trait EntityTable[I <: EntityId, E <: Entity[I]] extends Table[E] {
     def id: Rep[I]
     def version: Rep[Version]
-    def created: Rep[DateTime]
-    def modified: Rep[DateTime]
+    def created: Rep[Instant]
+    def modified: Rep[Instant]
   }
 
   /**
@@ -47,7 +47,7 @@ trait EntityRepository { this: Profile =>
      * Subclasses simply need to copy the given ID, version, created and modified values into the entity.
      * This is because we can't access the case-class' copy method here.
      */
-    def copyEntityFields(entity: E, id: Option[I], version: Option[Version], created: Option[DateTime], modified: Option[DateTime]): E
+    def copyEntityFields(entity: E, id: Option[I], version: Option[Version], created: Option[Instant], modified: Option[Instant]): E
 
     def list(): DBIO[Seq[E]] = (for (e <- tableQuery) yield e).result
 
@@ -63,7 +63,7 @@ trait EntityRepository { this: Profile =>
     def insert(e: E): DBIO[E] = {
       require(!e.isPersisted)
 
-      val now = DateTime.now(DateTimeZone.UTC)
+      val now = Instant.now()
       val newCopy = copyEntityFields(e, None, Some(Version(0)), Some(now), Some(now))
       (tableQuery returning tableQuery.map(_.id) into {
         case(t, id) => copyEntityFields(t, Some(id), t.version, t.created, t.modified)
@@ -78,7 +78,7 @@ trait EntityRepository { this: Profile =>
       require(e.isPersisted)
       require(e.version.isDefined)
 
-      val now = DateTime.now(DateTimeZone.UTC)
+      val now = Instant.now()
       val q = for (r <- tableQuery if r.id === e.id && r.version === e.version) yield r
 
       (for {
