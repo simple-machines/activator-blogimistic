@@ -6,7 +6,8 @@ scalaVersion := "2.11.6"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 
-libraryDependencies += "com.typesafe.slick" %% "slick"          % "3.0.1"
+libraryDependencies += "com.typesafe.slick" %% "slick"          % "3.1.0"
+libraryDependencies += "com.typesafe.slick" %% "slick-hikaricp" % "3.1.0"
 libraryDependencies += "com.typesafe"       %  "config"         % "1.2.1"
 libraryDependencies += "com.h2database"     %  "h2"             % "1.3.175"
 libraryDependencies += "org.postgresql"     %  "postgresql"     % "9.4-1201-jdbc41"

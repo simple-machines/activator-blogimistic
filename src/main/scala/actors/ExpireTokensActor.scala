@@ -7,6 +7,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
+import scala.language.postfixOps
+
 /**
  * Actor that periodically deletes expired tokens from the database.
  */

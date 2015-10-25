@@ -35,7 +35,7 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
     def findByEmail(email: String) =
       (for (u <- users if u.email === email) yield u).result.headOption
 
-    def findByFacebookId(facebookId: String) =
+    def findByFacebookId(facebookId: String): DBIO[Option[User]] =
       (for (u <- users if u.facebookId === facebookId) yield u).result.headOption
 
     def findByToken(token: String) =
@@ -45,10 +45,10 @@ trait UserRepository extends EntityRepository { this: Profile with TokenReposito
       } yield u).result.headOption
 
     def upsertByFacebookId(user: User)(implicit ec: ExecutionContext): DBIO[User] = {
-      findByFacebookId(user.facebookId) flatMap {
+      (findByFacebookId(user.facebookId) flatMap {
         case Some(existing) => update(existing.copy(name = user.name, email = user.email, picture = user.picture))
         case None => insert(user)
-      }
+      }).transactionally
     }
   }
 }
